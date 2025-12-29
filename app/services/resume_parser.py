@@ -1,3 +1,28 @@
+import re
+
+COMMON_SKILLS = [
+    "python", "java", "sql", "excel", "react", "node",
+    "fastapi", "django", "aws", "git", "docker"
+]
+
+def extract_skills(text: str):
+    text_lower = text.lower()
+    found = []
+    for skill in COMMON_SKILLS:
+        if skill in text_lower:
+            found.append(skill.capitalize())
+    return list(set(found))
+
+
+def extract_education(text: str):
+    match = re.search(r"(bachelor|b\.sc|bcs|master|m\.sc)", text.lower())
+    return match.group(0).upper() if match else "Not found"
+
+
+def extract_experience(text: str):
+    match = re.search(r"(\d+)\+?\s+years?", text.lower())
+    return match.group(1) if match else "0"
+
 from fastapi import APIRouter, UploadFile, File, HTTPException
 import pdfplumber
 
@@ -21,19 +46,11 @@ async def upload_resume(file: UploadFile = File(...)):
                 status_code=422,
                 detail="No readable text found in PDF"
             )
-        from app.services.resume_parser import (
-        extract_skills,
-        extract_education,
-        extract_experience
-         )
 
         return {
-       "filename": file.filename,
-       "skills": extract_skills(text),
-       "education": extract_education(text),
-       "experience_years": extract_experience(text)
-}
-
+            "filename": file.filename,
+            "text_preview": text[:500]
+        }
 
         
     except Exception as e:
@@ -41,3 +58,4 @@ async def upload_resume(file: UploadFile = File(...)):
             status_code=500,
             detail=f"Failed to process PDF: {str(e)}"
         )
+
