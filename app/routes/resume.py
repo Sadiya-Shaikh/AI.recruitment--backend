@@ -1,5 +1,8 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 import pdfplumber
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/resume", tags=["Resume"])
 
@@ -26,18 +29,37 @@ async def upload_resume(file: UploadFile = File(...)):
         extract_education,
         extract_experience
          )
-
+        
+        
+      
         return {
-       "filename": file.filename,
-       "skills": extract_skills(text),
-       "education": extract_education(text),
-       "experience_years": extract_experience(text)
+    "filename": file.filename,
+    "parsed": True,
+    "data": {
+        "skills": extract_skills(text),
+        "education": extract_education(text),
+        "experience_years": extract_experience(text)
+    }
 }
 
 
-        
-    except Exception as e:
+    except HTTPException:
+     raise
+    except Exception:
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to process PDF: {str(e)}"
+            detail="Internal server error while processing resume"
         )
+
+    except Exception as e:
+     logger.exception("Resume processing failed")
+    raise HTTPException(status_code=500, detail="Internal server error")
+
+    skills = extract_skills(text)
+
+    if not skills:
+     return {
+        "filename": file.filename,
+        "parsed": False,
+        "error": "Unable to extract skills from resume"
+    }
