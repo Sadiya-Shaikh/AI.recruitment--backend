@@ -24,7 +24,6 @@ def analyze_jd_vs_resume(resume_skills: list, jd_text: str):
             else:
                 missing.append(skill)
 
-    score = calculate_score(matched, jd_skills)
 
     score = int((len(matched) / len(resume_lower)) * 100) if resume_lower else 0
    
