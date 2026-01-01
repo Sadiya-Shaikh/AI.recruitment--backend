@@ -12,10 +12,11 @@ def test_analyze_jd_vs_resume_basic():
     assert "git" not in result["jd_skills"]
 
 
-def test_calculate_score():
-    matched = ["python", "docker"]
-    jd_skills = ["python", "docker", "aws"]
+
+def test_score_is_jd_based():
+    matched = ["python", "git"]
+    jd_skills = ["python", "git", "docker", "aws"]
 
     score = calculate_score(matched, jd_skills)
 
-    assert score == 66
+    assert score == 50
