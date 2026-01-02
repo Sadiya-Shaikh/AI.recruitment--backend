@@ -1,14 +1,14 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 import pdfplumber
 
-from app.schemas.match import MatchResponse
+from app.schemas.match_response import MatchResponse
 from app.services.resume_parser import extract_skills
 from app.services.jd_matcher import analyze_jd_vs_resume, calculate_score
 
 router = APIRouter(prefix="/match", tags=["Match"])
 
 
-@router.post("/", response_model=MatchResponse)
+@router.post("/match", response_model=MatchResponse)
 async def match_resume(
     jd: str = Form(...),
     resume: UploadFile = File(...)
@@ -38,14 +38,9 @@ async def match_resume(
 
     analysis = analyze_jd_vs_resume(resume_skills, jd)
 
-    score = calculate_score(
-        analysis["matched_skills"],
-        analysis["jd_skills"]
-    )
-
-    return {
-        "match_score": score,
-        "matched_skills": analysis["matched_skills"],
-        "missing_skills": analysis["missing_skills"],
-        "jd_skills": analysis["jd_skills"]
-    }
+    return MatchResponse(
+    match_score=analysis["match_score"],
+    matched_skills=analysis["matched_skills"],
+    missing_skills=analysis["missing_skills"],
+    jd_skills=analysis["jd_skills"]
+)

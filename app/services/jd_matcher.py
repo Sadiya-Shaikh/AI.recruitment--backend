@@ -19,13 +19,15 @@ def analyze_jd_vs_resume(resume_skills: list, jd_text: str):
     for skill, aliases in SKILL_ALIASES.items():
         if any(alias in jd_text for alias in aliases):
             jd_skills.append(skill)
-
             if skill in resume_lower:
                 matched.append(skill)
             else:
                 missing.append(skill)
 
+    score = calculate_score(matched, jd_skills)
+
     return {
+        "match_score": score,
         "matched_skills": matched,
         "missing_skills": missing,
         "jd_skills": jd_skills
