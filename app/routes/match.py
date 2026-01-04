@@ -5,7 +5,7 @@ from app.schemas.match_response import MatchResponse
 from app.services.resume_parser import extract_skills
 from app.services.jd_matcher import analyze_jd_vs_resume, calculate_score
 
-router = APIRouter(prefix="/match", tags=["Match"])
+router = APIRouter(prefix="", tags=["Match"])
 
 
 @router.post("/match", response_model=MatchResponse)
