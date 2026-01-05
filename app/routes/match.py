@@ -30,11 +30,15 @@ async def match_resume(
         raise HTTPException(status_code=500, detail="Failed to read resume PDF")
 
     if not text.strip():
-        raise HTTPException(status_code=422, detail="No readable text found in resume")
+        text = "" #allow empty text, let skill extraction decide
 
     resume_skills = extract_skills(text)
+
     if not resume_skills:
-        raise HTTPException(status_code=422, detail="No skills detected in resume")
+        raise HTTPException(
+            status_code=422,
+            detail="No recognizable skills found in resume"
+        )
 
     analysis = analyze_jd_vs_resume(resume_skills, jd)
 

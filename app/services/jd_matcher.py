@@ -1,5 +1,5 @@
 from app.utils.skill_dictionary import SKILL_ALIASES
-
+from app.services.scoring import weighted_score
 
 def calculate_score(matched: list, jd_skills: list) -> int:
     if not jd_skills:
@@ -24,7 +24,7 @@ def analyze_jd_vs_resume(resume_skills: list, jd_text: str):
             else:
                 missing.append(skill)
 
-    score = calculate_score(matched, jd_skills)
+    score = weighted_score(matched, jd_skills)
 
     return {
         "match_score": score,
