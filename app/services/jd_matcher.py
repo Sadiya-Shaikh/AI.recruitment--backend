@@ -1,34 +1,37 @@
-from app.utils.skill_dictionary import SKILL_ALIASES
-from app.services.scoring import weighted_score
+def normalize(skills: list[str]) -> set[str]:
+    return {s.lower().strip() for s in skills}
 
-def calculate_score(matched: list, jd_skills: list) -> int:
+
+def extract_skills_from_jd(jd: str) -> set[str]:
+    keywords = [
+        "python", "fastapi", "flask",
+        "docker", "aws", "azure", "gcp",
+        "git", "linux", "ci/cd"
+    ]
+    jd_lower = jd.lower()
+    return {k for k in keywords if k in jd_lower}
+
+
+def weighted_score(resume_skills: set[str], jd_skills: set[str]) -> int:
     if not jd_skills:
         return 0
+
+    matched = resume_skills & jd_skills
     return int((len(matched) / len(jd_skills)) * 100)
 
 
-def analyze_jd_vs_resume(resume_skills: list, jd_text: str):
-    jd_text = jd_text.lower()
+def analyze_jd_vs_resume(resume_skills: list[str], jd: str) -> dict:
+    resume_set = normalize(resume_skills)
+    jd_set = extract_skills_from_jd(jd)
 
-    jd_skills = []
-    matched = []
-    missing = []
+    matched = sorted(resume_set & jd_set)
+    missing = sorted(jd_set - resume_set)
 
-    resume_lower = {s.lower() for s in resume_skills}
-
-    for skill, aliases in SKILL_ALIASES.items():
-        if any(alias in jd_text for alias in aliases):
-            jd_skills.append(skill)
-            if skill in resume_lower:
-                matched.append(skill)
-            else:
-                missing.append(skill)
-
-    score = weighted_score(matched, jd_skills)
+    score = weighted_score(resume_set, jd_set)
 
     return {
         "match_score": score,
         "matched_skills": matched,
         "missing_skills": missing,
-        "jd_skills": jd_skills
+        "jd_skills": sorted(jd_set)
     }
