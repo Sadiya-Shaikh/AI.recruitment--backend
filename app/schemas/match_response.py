@@ -2,7 +2,9 @@ from pydantic import BaseModel
 from typing import List
 
 class MatchResponse(BaseModel):
-  match_score: int
-  matched_skills: List[str]
-  missing_skills: List[str]
-  jd_skills: List[str]
+    semantic_score: int
+    skill_match_score: int
+    final_score: int
+    matched_skills: list[str]
+    missing_skills: list[str]
+    jd_skills: list[str]

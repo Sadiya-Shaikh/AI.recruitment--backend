@@ -1,37 +1,32 @@
-def normalize(skills: list[str]) -> set[str]:
-    return {s.lower().strip() for s in skills}
+from app.services.scoring import semantic_score, weighted_score
 
-
-def extract_skills_from_jd(jd: str) -> set[str]:
+def extract_skills_from_jd(jd: str) -> list[str]:
     keywords = [
         "python", "fastapi", "flask",
         "docker", "aws", "azure", "gcp",
         "git", "linux", "ci/cd"
     ]
     jd_lower = jd.lower()
-    return {k for k in keywords if k in jd_lower}
+    return [k for k in keywords if k in jd_lower]
 
 
-def weighted_score(resume_skills: set[str], jd_skills: set[str]) -> int:
-    if not jd_skills:
-        return 0
+def analyze_jd_vs_resume(resume_skills: list[str], resume_text: str, jd_text: str):
+    resume_skills = [s.lower() for s in resume_skills]
+    jd_skills = extract_skills_from_jd(jd_text)
 
-    matched = resume_skills & jd_skills
-    return int((len(matched) / len(jd_skills)) * 100)
+    matched = list(set(resume_skills) & set(jd_skills))
+    missing = list(set(jd_skills) - set(resume_skills))
 
+    skill_score = weighted_score(matched, jd_skills)
+    semantic = semantic_score(resume_text, jd_text)
 
-def analyze_jd_vs_resume(resume_skills: list[str], jd: str) -> dict:
-    resume_set = normalize(resume_skills)
-    jd_set = extract_skills_from_jd(jd)
-
-    matched = sorted(resume_set & jd_set)
-    missing = sorted(jd_set - resume_set)
-
-    score = weighted_score(resume_set, jd_set)
+    final = round((0.6 * semantic) + (0.4 * skill_score))
 
     return {
-        "match_score": score,
+        "semantic_score": semantic,
+        "skill_match_score": skill_score,
+        "final_score": final,
         "matched_skills": matched,
         "missing_skills": missing,
-        "jd_skills": sorted(jd_set)
+        "jd_skills": jd_skills
     }
