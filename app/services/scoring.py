@@ -6,17 +6,20 @@ SKILL_WEIGHTS = {
     "docker": 2,
     "aws": 3,
     "fastapi": 1,
-    "git": 1
+    "git": 1,
+    "linux": 2,
+    "ci/cd": 2
 }
 
-def weighted_score(matched: list[str], jd_skills: list[str]) -> int:
+
+def weighted_skill_score(matched: list[str], jd_skills: list[str]) -> int:
     if not jd_skills:
         return 0
 
-    total = sum(SKILL_WEIGHTS.get(s, 1) for s in jd_skills)
-    gained = sum(SKILL_WEIGHTS.get(s, 1) for s in matched)
+    total_weight = sum(SKILL_WEIGHTS.get(skill, 1) for skill in jd_skills)
+    matched_weight = sum(SKILL_WEIGHTS.get(skill, 1) for skill in matched)
 
-    return int((gained / total) * 100)
+    return round((matched_weight / total_weight) * 100)
 
 
 def semantic_score(resume_text: str, jd_text: str) -> int:
