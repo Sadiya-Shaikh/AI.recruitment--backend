@@ -21,10 +21,12 @@ def has_missing_critical(resume_skills: list[str]) -> bool:
 def verdict_engine(final_score: int, missing_critical: bool) -> str:
     if missing_critical:
         return "Rejected"
-    elif final_score >= 80:
+    elif final_score >= 75:
         return "Recommended"
-    else:
+    elif final_score >= 50:
         return "Consider"
+    else:
+        return "Rejected"
 
 
 def analyze_jd_vs_resume(
@@ -55,3 +57,5 @@ def analyze_jd_vs_resume(
         "missing_skills": missing,
         "jd_skills": jd_skills
     }
+
+

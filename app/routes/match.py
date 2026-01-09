@@ -15,8 +15,12 @@ async def match_resume(
 ):
     if not jd.strip():
         raise HTTPException(status_code=400, detail="Job description cannot be empty")
+    
+    if resume.size > 2_000_000:
+        raise HTTPException(413, "Resume too large")
 
-    if resume.content_type != "application/pdf":
+
+    if resume.content_type not in ["application/pdf"]:
         raise HTTPException(status_code=400, detail="Only PDF resumes allowed")
 
     try:
@@ -28,6 +32,7 @@ async def match_resume(
                     text += extracted
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to read resume PDF")
+    
 
     if not text.strip():
         text = "" #allow empty text, let skill extraction decide
@@ -35,10 +40,7 @@ async def match_resume(
     resume_skills = extract_skills(text)
 
     if not resume_skills:
-        raise HTTPException(
-            status_code=422,
-            detail="No recognizable skills found in resume"
-        )
+        resume_skills = []
 
     analysis = analyze_jd_vs_resume(
     resume_skills=resume_skills,
@@ -50,6 +52,7 @@ async def match_resume(
     semantic_score=analysis["semantic_score"],
     skill_match_score=analysis["skill_match_score"],
     final_score=analysis["final_score"],
+    verdict=analysis["verdict"],
     matched_skills=analysis["matched_skills"],
     missing_skills=analysis["missing_skills"],
     jd_skills=analysis["jd_skills"]
