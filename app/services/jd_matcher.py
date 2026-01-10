@@ -47,6 +47,7 @@ def analyze_jd_vs_resume(
 
     missing_critical = has_missing_critical(resume_skills)
     verdict = verdict_engine(final, missing_critical)
+    
 
     return {
         "semantic_score": semantic,
